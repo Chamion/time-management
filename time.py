@@ -125,7 +125,7 @@ def hours_and_minutes(minutes):
     return (int(minutes / 60), minutes % 60)
 
 def setup():
-    connection = sqlite3.connect('db/time.db')
+    connection = sqlite3.connect('time.db')
     cursor = connection.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS Actions (id INTEGER PRIMARY KEY AUTOINCREMENT, action VARCHAR(6) NOT NULL, time VARCHAR(5) NOT NULL, date VARCHAR(10) NOT NULL, message TEXT);')
     return (connection, cursor)
