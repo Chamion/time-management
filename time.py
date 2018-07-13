@@ -173,13 +173,14 @@ def main(argv, cursor):
         sys.exit(4)
     retro = {}
     if retro_date != None:
-        if not re.match(retro_date, r'^\d{2}:\d{2}:\d{4}$'):
+        try:
+            retro['date'] = parse_date(retro_date)
+        except:
             print('Could not parse date. Date should be dd:mm:yyyy')
             sys.exit(5)
         if retro_time == None:
             print('Cannot have retroactive date without retroactive time. Set the time with -t <time>')
             sys.exit(7)
-        retro['date'] = parse_date(retro_date)
     else: 
         retro['date'] = str(datetime.datetime.now().date())
     if retro_time != None:
