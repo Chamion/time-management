@@ -108,6 +108,8 @@ def status(params):
             'stop': None
         }[action]
         last_time = time
+    if current_state != None:
+        cumulative[current_state] += minutes_between(last_time, str(datetime.datetime.now().time())[0:5])
     print('======== TODAY ========')
     paid_hours, paid_minutes = hours_and_minutes(cumulative['work'] + cumulative['break'])
     print('paid time: {} h {} min'.format(paid_hours, paid_minutes))
