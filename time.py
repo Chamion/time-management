@@ -125,6 +125,56 @@ def status(params):
     }
     print('currently {}.'.format(stateStr[current_state]))
 
+def average(params):
+    current_date = None
+    current_state = None
+    last_time = None
+    days = 0
+    cumulative = {
+        'work': 0,
+        'break': 0,
+        'lunch': 0
+    }
+    today = {
+        None: 0,
+        'work': 0,
+        'break': 0,
+        'lunch': 0
+    }
+    for action in cursor.execute('SELECT action, time FROM Actions;'):
+        if action[0] == 'start':
+            today = {
+                None: 0,
+                'work': 0,
+                'break': 0,
+                'lunch': 0
+            }
+        if last_time != None:
+            today[current_state] += minutes_between(last_time, action[1])
+        if action[0] == 'stop':
+            days += 1
+            for key in cumulative:
+                cumulative[key] += today[key]
+        current_state = {
+            'start': 'work',
+            'lunch': 'lunch',
+            'coffee': 'break',
+            'resume': 'work',
+            'stop': None
+        }[action[0]]
+        last_time = action[1]
+    print('======== AVERAGE ========')
+    if days == 0:
+        print('No days logged.')
+        return
+    print('days logged: {}'.format(days))
+    paid_hours, paid_minutes = hours_and_minutes((cumulative['work'] + cumulative['break']) / days)
+    print('paid time: {} h {} min'.format(paid_hours, paid_minutes))
+    break_hours, break_minutes = hours_and_minutes(cumulative['break'] / days)
+    print('of which {} h {} min was break-time.'.format(break_hours, break_minutes))
+    lunch_hours, lunch_minutes = hours_and_minutes(cumulative['lunch'] / days)
+    print('unpaid lunch time: {} h {} min.'.format(lunch_hours, lunch_minutes))
+    
 def minutes_between(start, stop):
     hours_start, minutes_start = map(lambda x: int(x), start.split(':'))
     hours_stop, minutes_stop = map(lambda x: int(x), stop.split(':'))
@@ -175,8 +225,8 @@ def main(argv, cursor):
         command = 'status'
     else:
         command = args[0]
-    if command not in ('start', 'stop', 'lunch', 'coffee', 'resume', 'status', 'break', 'continue'):
-        print('Unknown command. Command must be one of start, stop, lunch, coffee, resume, status')
+    if command not in ('start', 'stop', 'lunch', 'coffee', 'resume', 'status', 'break', 'continue', 'average'):
+        print('Unknown command. Command must be one of start, stop, lunch, coffee, resume, status, average')
         sys.exit(4)
     retro = {}
     if retro_date != None:
@@ -213,7 +263,8 @@ def main(argv, cursor):
         'break': coffee,
         'resume': resume,
         'continue': resume,
-        'status': status
+        'status': status,
+        'average': average
     }[command](params)
 
 if __name__ == "__main__":
