@@ -117,6 +117,13 @@ def status(params):
     print('of which {} h {} min was break-time.'.format(break_hours, break_minutes))
     lunch_hours, lunch_minutes = hours_and_minutes(cumulative['lunch'])
     print('unpaid lunch time: {} h {} min.'.format(lunch_hours, lunch_minutes))
+    stateStr = {
+        None: 'not working',
+        'work': 'working',
+        'lunch': 'on lunch break',
+        'break': 'on break'
+    }
+    print('currently {}.'.format(stateStr[current_state]))
 
 def minutes_between(start, stop):
     hours_start, minutes_start = map(lambda x: int(x), start.split(':'))
